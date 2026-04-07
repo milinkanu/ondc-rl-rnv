@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONDC Interactive Agent Simulator</title>
+    <!-- Modern Font: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="dashboard-wrap">
+        <!-- HEADER -->
+        <header class="glass-panel">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fa-solid fa-cube"></i>
+                    <h1>ONDC <span>Simulator</span></h1>
+                </div>
+            </div>
+            
+            <div class="header-stats">
+                <div class="stat-box" id="stat-budget">
+                    <i class="fa-solid fa-wallet"></i>
+                    <div class="stat-info">
+                        <span class="label">Budget</span>
+                        <span class="value">₹0.00</span>
+                    </div>
+                </div>
+                <div class="stat-box" id="stat-urgency">
+                    <i class="fa-solid fa-bolt"></i>
+                    <div class="stat-info">
+                        <span class="label">Urgency</span>
+                        <span class="value">0%</span>
+                    </div>
+                </div>
+                <div class="stat-box" id="stat-reward">
+                    <i class="fa-solid fa-star"></i>
+                    <div class="stat-info">
+                        <span class="label">Total Reward</span>
+                        <span class="value">0.0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <button id="btn-start" class="btn-primary"><i class="fa-solid fa-rotate-right"></i> Start New Session</button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <div class="main-content">
+            
+            <!-- LEFT PANEL: Beckn Phase Tracker & Actions -->
+            <aside class="left-panel glass-panel">
+                <div class="section-title">
+                    <h2>Protocol Flow</h2>
+                </div>
+                
+                <div class="phase-tracker" id="phase-tracker">
+                    <div class="phase-step" data-phase="0">
+                        <div class="step-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div class="step-label">Search</div>
+                    </div>
+                    <div class="phase-step" data-phase="1">
+                        <div class="step-icon"><i class="fa-solid fa-check-to-slot"></i></div>
+                        <div class="step-label">Select</div>
+                    </div>
+                    <div class="phase-step" data-phase="2">
+                        <div class="step-icon"><i class="fa-solid fa-cart-arrow-down"></i></div>
+                        <div class="step-label">Init</div>
+                    </div>
+                    <div class="phase-step" data-phase="3">
+                        <div class="step-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                        <div class="step-label">Confirm</div>
+                    </div>
+                    <div class="phase-step" data-phase="4">
+                        <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div class="step-label">Track</div>
+                    </div>
+                    <div class="phase-step" data-phase="5">
+                        <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
+                        <div class="step-label">Post Order</div>
+                    </div>
+                </div>
+
+                <div class="actions-panel">
+                    <h3>Available Actions</h3>
+                    <div id="actions-container" class="actions-grid">
+                        <p style="color: var(--text-muted); font-size: 0.9sm;">Start a session to see actions.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- RIGHT PANEL: Context / Env Vis -->
+            <div class="right-panel">
+                
+                <!-- SELLERS -->
+                <div class="glass-panel main-view" id="view-sellers">
+                    <div class="section-title">
+                        <h2>Market Offers</h2>
+                        <span class="item-badge" id="target-item-badge">No Session</span>
+                    </div>
+                    
+                    <div id="sellers-container" class="sellers-grid">
+                        <!-- Empty State -->
+                        <div class="empty-state">
+                            <i class="fa-solid fa-shop"></i>
+                            <p>Start a session and trigger "Search" to view sellers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOTIFICATIONS / EVENT LOG -->
+                <div class="glass-panel console-view">
+                    <div class="section-title">
+                        <h2>Event Log</h2>
+                    </div>
+                    <div class="log-container" id="event-logs">
+                        <!-- Logs injected via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

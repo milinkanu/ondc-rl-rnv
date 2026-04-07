@@ -8,7 +8,10 @@ from dataclasses import asdict
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+import os
 
 from ondc_env import ONDCAgentEnv, EnvConfig, EpisodeState
 
@@ -17,6 +20,14 @@ from ondc_env import ONDCAgentEnv, EnvConfig, EpisodeState
 # ---------------------------------------------------------------------------
 
 app = FastAPI(title="ONDCAgentEnv API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ---------------------------------------------------------------------------
 # In-memory stores
@@ -216,3 +227,11 @@ def train_status(run_id: str) -> TrainStatusResponse:
         raise HTTPException(status_code=404, detail="Run not found")
     run = _runs[run_id]
     return TrainStatusResponse(status=run["status"], metrics=run["metrics"])
+
+# ---------------------------------------------------------------------------
+# Frontend Mount
+# ---------------------------------------------------------------------------
+
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+os.makedirs(frontend_dir, exist_ok=True)
+app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
