@@ -5,6 +5,7 @@ Participant LLM evaluation hook for ONDCAgentEnv
 
 import os
 import re
+import math
 import textwrap
 from openai import OpenAI
 
@@ -87,11 +88,10 @@ def extract_action(text_response):
         return int(match.group(1))
     return 14 # default to WAIT if parsing completely fails
 
-def play_episode(client, env, model_name):
+def play_episode(client, env, model_name, task_name):
     obs, info = env.reset(seed=42)
     done = False
     
-    task_name = env.state.task_id if hasattr(env, 'state') and env.state else "ondc_shopping"
     print(f"[START] task={task_name}", flush=True)
     
     step_count = 0
@@ -124,7 +124,11 @@ def play_episode(client, env, model_name):
         
         done = terminated or truncated
 
-    print(f"[END] task={task_name} score={total_reward} steps={step_count}", flush=True)
+    # Sigmoid scaling to bound strictly between 0 and 1, as required by evaluator
+    score = 1.0 / (1.0 + math.exp(-total_reward / 10.0))
+    score = max(0.01, min(0.99, score))
+    
+    print(f"[END] task={task_name} score={score:.4f} steps={step_count}", flush=True)
 
 def main():
     print(f"Connecting to Endpoint -> {API_BASE_URL}")
@@ -140,12 +144,17 @@ def main():
         print("Failed to initialize OpenAI client:", e)
         return
 
-    # Setup the Gym environment locally
-    config = EnvConfig(max_steps=50, initial_budget=1000.0)
-    env = ONDCAgentEnv(config)
-    
-    # Run the loop
-    play_episode(client, env, MODEL_NAME or "test-model")
+    tasks = [
+        {"name": "task_1_easy_budget", "budget": 2000.0, "max_steps": 50},
+        {"name": "task_2_strict_urgency", "budget": 1000.0, "max_steps": 30},
+        {"name": "task_3_low_budget", "budget": 500.0, "max_steps": 50},
+    ]
+
+    for t in tasks:
+        print(f"\n--- Starting {t['name']} ---")
+        config = EnvConfig(max_steps=t["max_steps"], initial_budget=t["budget"])
+        env = ONDCAgentEnv(config)
+        play_episode(client, env, MODEL_NAME or "test-model", t["name"])
 
 if __name__ == "__main__":
     main()
