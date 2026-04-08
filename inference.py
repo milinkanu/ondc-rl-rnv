@@ -14,9 +14,10 @@ from ondc_env import ONDCAgentEnv, EnvConfig
 # ---------------------------------------------------------
 # MANDATORY VARIABLES (As requested by the eval framework)
 # ---------------------------------------------------------
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://router.huggingface.co/v1"
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "HuggingFaceH4/zephyr-7b-beta")
+HF_TOKEN = os.getenv("HF_TOKEN")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 
 # ONDC Action mapping for reference in the prompt
 VALID_ACTIONS = {
@@ -88,11 +89,10 @@ def extract_action(text_response):
 def play_episode(client, env, model_name):
     obs, info = env.reset(seed=42)
     done = False
-    step = 0
 
-    print("Starting LLM Agent Loop...")
+    print("START")
     while not done:
-        step += 1
+        print("STEP")
         state_prompt = state_to_prompt(env.state)
 
         messages = [
@@ -109,26 +109,24 @@ def play_episode(client, env, model_name):
             )
             raw_output = response.choices[0].message.content.strip()
             action = extract_action(raw_output)
-            print(f"Step {step} | Phase: {env.state.current_phase.name:15} | LLM output: '{raw_output}' => Parsed Action: {action} ({VALID_ACTIONS.get(action)})")
         except Exception as e:
-            print("LLM Call Failed, taking fallback WAIT action. Error:", str(e))
             action = 14
 
         obs, reward, terminated, truncated, info = env.step(action)
         done = terminated or truncated
 
-    print(f"Episode finished. Final reward breakdown: {info.get('reward_breakdown', {})}")
+    print("END")
 
 def main():
     print(f"Connecting to Endpoint -> {API_BASE_URL}")
     print(f"Model ID -> {MODEL_NAME}")
     
-    if not API_KEY or not MODEL_NAME:
-        print("WARNING: HF_TOKEN or MODEL_NAME is not set in environment. Inference might fail.")
+    if not HF_TOKEN:
+        print("WARNING: HF_TOKEN is not set in environment. Inference might fail.")
 
     try:
         # Mandatory OpenAI Client Usage
-        client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        client = OpenAI(base_url=API_BASE_URL, api_key=HF_TOKEN)
     except Exception as e:
         print("Failed to initialize OpenAI client:", e)
         return

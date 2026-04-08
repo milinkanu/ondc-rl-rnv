@@ -1,3 +1,12 @@
+---
+title: ONDC RL Simulator
+emoji: 🛒
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+---
+
 # ONDCAgentEnv
 
 A reinforcement learning environment that simulates the [ONDC (Open Network for Digital Commerce)](https://ondc.org/) buyer-seller lifecycle. An RL agent acts as a buyer navigating the full Beckn protocol flow, making decisions across a dynamic multi-seller market with real-world constraints like budget, delivery urgency, and seller reliability.
