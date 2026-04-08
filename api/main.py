@@ -256,6 +256,16 @@ def openenv_step(req: StepRequest) -> StepResponse:
         raise HTTPException(status_code=400, detail="Must call /reset first")
     return session_step(_global_session_id, req)
 
+@app.get("/state")
+def openenv_state() -> dict:
+    global _global_session_id
+    if _global_session_id not in _sessions:
+        raise HTTPException(status_code=400, detail="Must call /reset first")
+    env = _sessions[_global_session_id]["env"]
+    if env.state is None:
+        raise HTTPException(status_code=404, detail="State not initialized")
+    return _serialize_state(env.state)
+
 # ---------------------------------------------------------------------------
 # Frontend Mount
 # ---------------------------------------------------------------------------
