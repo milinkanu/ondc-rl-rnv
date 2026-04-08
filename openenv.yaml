@@ -1,3 +1,8 @@
 name: ondc-rl-simulator
 version: "1.0.0"
 description: "ONDC Agent Environment"
+
+tasks:
+  - task_1_easy_budget
+  - task_2_strict_urgency
+  - task_3_low_budget

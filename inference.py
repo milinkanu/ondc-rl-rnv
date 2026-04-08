@@ -151,7 +151,6 @@ def main():
     ]
 
     for t in tasks:
-        print(f"\n--- Starting {t['name']} ---")
         config = EnvConfig(max_steps=t["max_steps"], initial_budget=t["budget"])
         env = ONDCAgentEnv(config)
         play_episode(client, env, MODEL_NAME or "test-model", t["name"])
