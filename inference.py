@@ -90,10 +90,15 @@ def extract_action(text_response):
 def play_episode(client, env, model_name):
     obs, info = env.reset(seed=42)
     done = False
+    
+    task_name = env.state.task_id if hasattr(env, 'state') and env.state else "ondc_shopping"
+    print(f"[START] task={task_name}", flush=True)
+    
+    step_count = 0
+    total_reward = 0.0
 
-    print("START")
     while not done:
-        print("STEP")
+        step_count += 1
         state_prompt = state_to_prompt(env.state)
 
         messages = [
@@ -114,9 +119,12 @@ def play_episode(client, env, model_name):
             action = 14
 
         obs, reward, terminated, truncated, info = env.step(action)
+        total_reward += reward
+        print(f"[STEP] step={step_count} reward={reward}", flush=True)
+        
         done = terminated or truncated
 
-    print("END")
+    print(f"[END] task={task_name} score={total_reward} steps={step_count}", flush=True)
 
 def main():
     print(f"Connecting to Endpoint -> {API_BASE_URL}")
