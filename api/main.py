@@ -229,6 +229,34 @@ def train_status(run_id: str) -> TrainStatusResponse:
     return TrainStatusResponse(status=run["status"], metrics=run["metrics"])
 
 # ---------------------------------------------------------------------------
+# OpenEnv Standard Root Endpoints
+# ---------------------------------------------------------------------------
+_global_session_id = "default_openenv"
+
+class OpenEnvResetResponse(BaseModel):
+    obs: list[float]
+    info: dict[str, Any]
+
+@app.post("/reset", response_model=OpenEnvResetResponse)
+def openenv_reset(payload: dict[str, Any] | None = None) -> OpenEnvResetResponse:
+    global _global_session_id
+    config = EnvConfig(max_steps=50, initial_budget=1000.0)
+    env = ONDCAgentEnv(config)
+    obs, info = env.reset(seed=42)
+    _sessions[_global_session_id] = {"env": env, "failed": False}
+    return OpenEnvResetResponse(
+        obs=obs.tolist(),
+        info=_serialize_info(info),
+    )
+
+@app.post("/step", response_model=StepResponse)
+def openenv_step(req: StepRequest) -> StepResponse:
+    global _global_session_id
+    if _global_session_id not in _sessions:
+        raise HTTPException(status_code=400, detail="Must call /reset first")
+    return session_step(_global_session_id, req)
+
+# ---------------------------------------------------------------------------
 # Frontend Mount
 # ---------------------------------------------------------------------------
 
