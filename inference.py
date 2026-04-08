@@ -73,7 +73,8 @@ def state_to_prompt(state):
         if s.is_available:
             prompt += f"  Seller {i} -> Rating: {s.rating:.1f}, Price: {s.price:.2f}, ETA: {s.delivery_eta}, Stock: {s.stock}\n"
 
-    prompt += f"Currently Selected Seller ID: {state.selected_seller_id}\n"
+    seller_id = state.selected_offer.seller_id if state.selected_offer else "None"
+    prompt += f"Currently Selected Seller ID: {seller_id}\n"
     if state.order_status:
         prompt += f"Order Status: {state.order_status.name}\n"
     
